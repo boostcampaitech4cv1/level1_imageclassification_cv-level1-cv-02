@@ -1,6 +1,28 @@
+from tqdm import tqdm
+import random
+import os
+import numpy as np
+import torch
+import torch.nn as nn
+from sklearn import preprocessing
+from sklearn.metrics import f1_score
+from sklearn.model_selection import train_test_split
+
 MASK_CLASS = ['Wear','Incorrect','NotWear']
 GENDER_CLASS = ['Male', 'Female']
 AGE_CLASS = ['X<30', '30<=X<60', '60<=X']
+
+def seed_everything(seed):
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = True
+
+def competition_metric(true, pred):
+    return f1_score(true, pred, average="macro")
 
 def ConvertImagePathToMaskStatus(path:str):
     file_name = path.split('/')[-1].split('.')[0]
@@ -12,7 +34,6 @@ def ConvertImagePathToMaskStatus(path:str):
         return MASK_CLASS[0]
     else:
         return 'ERROR'
-
 
 def MaskEncoder(status:str):
     return MASK_CLASS.index(status)
