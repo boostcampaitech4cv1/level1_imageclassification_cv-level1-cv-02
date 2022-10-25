@@ -66,3 +66,19 @@ def AgeEncoder(status:int or str):
 
 def AgeDecoder(status:int):
     return AGE_CLASS[status]
+
+
+def mixUp(a, b):
+    pass
+
+
+class Args():
+    def __init__(
+        self,
+        root_data_dir,
+        random_seed,
+        label
+    ):
+        self.root_data_dir = root_data_dir
+        self.random_seed= random_seed,
+        self.label = label
