@@ -1,1 +1,1 @@
-from .ResNext_AgeV0_KHS import *
+from .ResNext_GenderV0_KHS import *
