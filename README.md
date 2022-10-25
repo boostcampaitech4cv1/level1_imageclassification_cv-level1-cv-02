@@ -31,3 +31,17 @@ d80bd7fff0e6bfc64092fac7a20c14ecdb8fda3f.jpg,0
 F1 Score 사용
 
 ![img](https://forums.fast.ai/uploads/default/original/3X/c/c/cca1b3ad72fc927fbf3d3690f01d2e3b5a31dd2e.png)
+
+---
+
+## rule
+
+> 변수명 : snake_case
+> 함수명 : camelCase
+> 클래스 : PascalCase
+> 
+> utils 함수 작성시 annotation 작성!
+> docs 작성 권장
+> wandb 사용
+> model 이나 train 함수 따로 python 파일로 작성해서 폴더에 넣기
+> 모델 파일 이름 backbone명_추가내용_이름이니셜.py
