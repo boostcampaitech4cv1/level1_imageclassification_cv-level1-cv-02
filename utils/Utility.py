@@ -49,17 +49,17 @@ def GenderDecoder(status:int):
     return GENDER_CLASS[status]
 
 
-def AgeEncoder(status:int or str):
-    if(type(status) == int):
+def ageEncoder(status: int or str):
+    if type(status) == int:
         index = -1
-        if(status < 30):
+        if status < 30:
             index = 0
-        elif(status >= 30 and status < 60):
+        elif status >= 30 and status < 60:
             index = 1
-        elif(status >= 60):
+        elif status >= 60:
             index = 2
         return index
-    elif(type(status) == str):
+    elif type(status) == str:
         return AGE_CLASS.index(status)
     else:
         return "ERROR"
@@ -75,10 +75,10 @@ def mixUp(a, b):
 class Args():
     def __init__(
         self,
-        root_data_dir,
+        root_path,
         random_seed,
-        label
+        csv_path
     ):
-        self.root_data_dir = root_data_dir
+        self.root_path = root_path
         self.random_seed= random_seed,
-        self.label = label
+        self.csv_path = csv_path
