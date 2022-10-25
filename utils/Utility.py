@@ -1,12 +1,8 @@
-from tqdm import tqdm
 import random
 import os
 import numpy as np
 import torch
-import torch.nn as nn
-from sklearn import preprocessing
 from sklearn.metrics import f1_score
-from sklearn.model_selection import train_test_split
 
 MASK_CLASS = ['Wear','Incorrect','NotWear']
 GENDER_CLASS = ['Male', 'Female']
@@ -51,18 +47,21 @@ def GenderDecoder(status:int):
 
 def ageEncoder(status: int or str):
     if type(status) == int:
-        index = -1
         if status < 30:
             index = 0
-        elif status >= 30 and status < 60:
+        elif 30 <= status < 60:
             index = 1
         elif status >= 60:
             index = 2
+        else:
+            raise Exception('age out of range(age is too big or small)')
         return index
+
     elif type(status) == str:
         return AGE_CLASS.index(status)
+
     else:
-        return "ERROR"
+        raise ValueError
 
 def AgeDecoder(status:int):
     return AGE_CLASS[status]
