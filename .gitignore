@@ -1,7 +1,10 @@
 *.tar
 *.csv
 
-### Dataset
+# Local works
+local/*
+
+# Dataset
 data/*
 ​
 # macOS + Windows
