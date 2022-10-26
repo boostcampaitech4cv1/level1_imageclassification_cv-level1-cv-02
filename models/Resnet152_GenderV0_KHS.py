@@ -6,18 +6,18 @@ import torch.nn.functional as F
 import torchvision.models as models
 
 
-class ResNext_GenderV0_KHS(nn.Module):
+class Resnet152_GenderV0_KHS(nn.Module):
     def __init__(self, number_of_classes: int):
-        super(ResNext_GenderV0_KHS, self).__init__()
-        self.backborn = torch.hub.load(
-            'pytorch/vision:v0.10.0', 'resnext50_32x4d', pretrained=True)
+        super(Resnet152_GenderV0_KHS, self).__init__()
+        self.backborn = models.resnet152(
+            weights=models.ResNet152_Weights.IMAGENET1K_V1)
         # for p in self.backborn.parameters():
         #     p.requires_grad = False
         self.classifier = nn.Sequential(
             nn.Linear(1000, 512),
             nn.BatchNorm1d(512),
-            nn.LeakyReLU(0.2),
-            nn.Dropout(p=0.2),
+            nn.ReLU(),
+            nn.Dropout(p=0.3),
             nn.Linear(512, number_of_classes)
         )
 
