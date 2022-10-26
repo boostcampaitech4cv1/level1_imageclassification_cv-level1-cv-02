@@ -113,7 +113,6 @@ class Args():
         img_size
     ):
         self.root_path = root_path
-<<<<<<< HEAD
         self.random_seed= random_seed
         self.csv_path = csv_path
         self.lr = lr
@@ -121,7 +120,3 @@ class Args():
         self.epochs = epochs
         self.device = device
         self.img_size = img_size
-=======
-        self.random_seed = random_seed,
-        self.csv_path = csv_path
->>>>>>> 0cdbdc1a6f362edc5c54d2c585e50f7e855e2f27
