@@ -80,7 +80,9 @@ class Args():
         seed,
         lr,
         batch_size,
-        epochs
+        epochs,
+        device,
+        img_size
     ):
         self.root_path = root_path
         self.random_seed= random_seed
@@ -89,3 +91,5 @@ class Args():
         self.lr = lr
         self.batch_size = batch_size
         self.epochs = epochs
+        self.device = device
+        self.img_size = img_size
