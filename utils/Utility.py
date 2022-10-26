@@ -41,7 +41,7 @@ def setSeedEverything(seed: int):
     torch.backends.cudnn.benchmark = True
 
 
-def calcCompetitionMetric(true, pred):
+def calcF1Score(true, pred):
     return f1_score(true, pred, average="macro")
 
 
