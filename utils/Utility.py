@@ -77,7 +77,6 @@ class Args():
         root_path,
         random_seed,
         csv_path,
-        seed,
         lr,
         batch_size,
         epochs,
@@ -87,7 +86,6 @@ class Args():
         self.root_path = root_path
         self.random_seed= random_seed
         self.csv_path = csv_path
-        self.seed = seed
         self.lr = lr
         self.batch_size = batch_size
         self.epochs = epochs
