@@ -6,6 +6,7 @@ import random
 import sys
 import os
 sys.path.append('../')  # import를 위해 경로추가
+from utils import Utility as U
 
 
 # Main
@@ -35,5 +36,8 @@ if __name__ == '__main__':
     df_merge['age'] = df_age['ans']
     df_merge['gender'] = df_gender['ans']
     df_merge['mask'] = df_mask['ans']
-
+    df_merge['ans'] = [ U.convertAgeGenderMaskToLabel(mask, gender, age) for mask, gender, age in zip(df_merge['mask'], df_merge['gender'], df_merge['age']) ]
+    df_merge = df_merge.drop(['age', 'gender', 'mask'], axis=1)
     print(df_merge.head())
+    print('done!')
+    df_merge.to_csv(os.path.join(args.csv_path, args.csv_result_name), index=False)
