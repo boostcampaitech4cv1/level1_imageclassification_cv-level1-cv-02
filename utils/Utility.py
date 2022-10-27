@@ -2,6 +2,7 @@ import random
 import os
 import numpy as np
 import pandas as pd
+import datetime
 import torch
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
@@ -100,6 +101,20 @@ def mixUp(a, b):
     pass
 
 
+def saveModel(model, optimizer, args, datetime):
+    torch.save({
+        'model': model.state_dict(),
+        'optim': optimizer.state_dict(),
+        'args': args,
+        'save_time': datetime,
+    }, args.save_name + datetime.strftime(".%Y-%m-%d.%H.%M.%S") + '.tar')
+
+
+def loadModel(path: str):
+    obj = torch.load(path)
+    return obj['model'], obj['optim'], obj['args'], obj['save_time']
+
+
 def load_model(model, path: str, device):
     ckpt = torch.load(path, map_location=device)
     model.load_state_dict(ckpt)
@@ -120,7 +135,7 @@ class Args():
         save_dir
     ):
         self.root_path = root_path
-        self.random_seed= random_seed
+        self.random_seed = random_seed
         self.csv_path = csv_path
         self.lr = lr
         self.batch_size = batch_size

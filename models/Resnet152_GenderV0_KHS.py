@@ -7,7 +7,7 @@ import torchvision.models as models
 
 
 class Resnet152_GenderV0_KHS(nn.Module):
-    def __init__(self, number_of_classes: int):
+    def __init__(self: int):
         super(Resnet152_GenderV0_KHS, self).__init__()
         self.backborn = models.resnet152(
             weights=models.ResNet152_Weights.IMAGENET1K_V1)
@@ -18,11 +18,11 @@ class Resnet152_GenderV0_KHS(nn.Module):
             nn.BatchNorm1d(512),
             nn.ReLU(),
             nn.Dropout(p=0.3),
-            nn.Linear(512, number_of_classes)
+            nn.Linear(512, 1)
         )
 
     def forward(self, x):
         x = self.backborn(x)
         x = self.classifier(x)
-        # x = F.softmax(x)
+        x = torch.sigmoid(x)
         return x
