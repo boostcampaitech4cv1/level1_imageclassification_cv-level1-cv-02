@@ -1,10 +1,11 @@
-import os
-import sys
-import random
-import numpy as np
-import pandas as pd
-from tqdm import tqdm
 import argparse
+from tqdm import tqdm
+import pandas as pd
+import numpy as np
+import random
+import sys
+import os
+sys.path.append('../')  # import를 위해 경로추가
 
 
 # Main
