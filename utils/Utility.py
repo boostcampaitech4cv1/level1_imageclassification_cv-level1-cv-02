@@ -100,6 +100,12 @@ def mixUp(a, b):
     pass
 
 
+def load_model(model, path: str):
+    ckpt = torch.load(path)
+    model.load_state_dict(ckpt)
+    return model
+
+
 class Args():
     def __init__(
         self,
@@ -110,7 +116,8 @@ class Args():
         batch_size,
         epochs,
         device,
-        img_size
+        img_size,
+        save_dir
     ):
         self.root_path = root_path
         self.random_seed= random_seed
@@ -120,3 +127,4 @@ class Args():
         self.epochs = epochs
         self.device = device
         self.img_size = img_size
+        self.save_dir = save_dir
