@@ -7,10 +7,10 @@ import torchvision.models as models
 
 
 class ResNext_GenderV0_KHS(nn.Module):
-    def __init__(self, number_of_classes: int):
+    def __init__(self: int):
         super(ResNext_GenderV0_KHS, self).__init__()
         self.backborn = torch.hub.load(
-            'pytorch/vision:v0.10.0', 'resnext50_32x4d', pretrained=True)
+            'pytorch/vision:v0.10.0', 'resnext50_32x4d', weights=models.ResNeXt50_32X4D_Weights.IMAGENET1K_V1)
         # for p in self.backborn.parameters():
         #     p.requires_grad = False
         self.classifier = nn.Sequential(
@@ -18,11 +18,11 @@ class ResNext_GenderV0_KHS(nn.Module):
             nn.BatchNorm1d(512),
             nn.LeakyReLU(0.2),
             nn.Dropout(p=0.2),
-            nn.Linear(512, number_of_classes)
+            nn.Linear(512, 1),
         )
 
     def forward(self, x):
         x = self.backborn(x)
         x = self.classifier(x)
-        # x = F.softmax(x)
+        x = torch.sigmoid(x)
         return x
