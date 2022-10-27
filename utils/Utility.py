@@ -143,3 +143,7 @@ class Args():
         self.device = device
         self.img_size = img_size
         self.save_dir = save_dir
+
+
+def convertAgeGenderMaskToLabel(age_label: int, gender_label: int, mask_label: int) -> int:
+    return mask_label*6 + gender_label*3 + age_label
