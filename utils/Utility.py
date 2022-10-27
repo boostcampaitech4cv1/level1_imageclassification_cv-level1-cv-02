@@ -14,10 +14,10 @@ AGE_CLASS = ['X<30', '30<=X<60', '60<=X']
 def splitDataset(dataset: pd.DataFrame, validation_ratio: float = 0.2, random_state: int = 0, shuffle: bool = True, group_key: str = "id"):
     df_train_data = []
     df_validation_data = []
-    ids = dataset['id'].unique()
+    ids = dataset[group_key].unique()
     if (shuffle):
         random.Random(random_state).shuffle(ids)
-    ratio_validation = int(ids.size * 0.2)
+    ratio_validation = int(ids.size * validation_ratio)
     idxs_validation = ids[0:ratio_validation]
     idxjudge = np.zeros_like(ids, np.bool8)
     idxjudge[idxs_validation] = True
