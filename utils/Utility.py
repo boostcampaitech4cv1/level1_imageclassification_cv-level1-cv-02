@@ -143,3 +143,33 @@ class Args():
         self.device = device
         self.img_size = img_size
         self.save_dir = save_dir
+
+
+def convertAgeGenderMaskToLabel(mask_label: int, gender_label: int, age_label: int) -> int:
+    return mask_label*6 + gender_label*3 + age_label
+
+
+def combineAgeGenderMaskSubmission(mask_fn: str, gender_fn: str, age_fn: str):
+    """
+    mask_fn : mask_{version}
+    gender_fn : gender_{version}
+    age_fn : age_{version}
+    """
+    csv_path = os.path.join('../test', 'csv')
+    csv_file_list = os.listdir(csv_path)
+
+    for file_name in csv_file_list:
+        if mask_fn in file_name:
+            df_mask = pd.read_csv(os.path.join(csv_path, file_name))
+        elif gender_fn in file_name:
+            df_gender = pd.read_csv(os.path.join(csv_path, file_name))
+        elif age_fn in file_name:
+            df_age = pd.read_csv(os.path.join(csv_path, file_name))
+    
+    sum_of_sub = []
+    for m,g,a in zip(df_mask.ans, df_gender.ans, df_age.ans):
+        sum_of_sub.append(m*6 + g*2 + a*3)
+    
+    submission = pd.read_csv(os.path.join('../data/eval', 'info.csv'))
+    submission['ans'] = sum_of_sub
+    submission.to_csv(os.path.join('../', 'submission.csv'), index=False)
