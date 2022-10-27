@@ -42,7 +42,7 @@ def setSeedEverything(seed: int):
     torch.backends.cudnn.benchmark = True
 
 
-def calcCompetitionMetric(true, pred):
+def calcF1Score(true, pred):
     return f1_score(true, pred, average="macro")
 
 
@@ -115,6 +115,12 @@ def loadModel(path: str):
     return obj['model'], obj['optim'], obj['args'], obj['save_time']
 
 
+def load_model(model, path: str, device):
+    ckpt = torch.load(path, map_location=device)
+    model.load_state_dict(ckpt)
+    return model
+
+
 class Args():
     def __init__(
         self,
@@ -125,7 +131,8 @@ class Args():
         batch_size,
         epochs,
         device,
-        img_size
+        img_size,
+        save_dir
     ):
         self.root_path = root_path
         self.random_seed = random_seed
@@ -135,3 +142,4 @@ class Args():
         self.epochs = epochs
         self.device = device
         self.img_size = img_size
+        self.save_dir = save_dir
