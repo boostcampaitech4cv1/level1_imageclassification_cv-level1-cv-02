@@ -22,7 +22,7 @@ from albumentations.pytorch.transforms import ToTensorV2
 
 from sklearn.model_selection import train_test_split
 
-sys.path.append('/opt/ml/mask/cv2_mask')
+sys.path.append('../')
 from utils.BaseDataset import MaskOnlyDataset, BaseAugmentation
 from models.Backbone import ResnetBackBone
 from utils.Utility import Args, encodeAge, setSeedEverything, calcF1Score, load_model
