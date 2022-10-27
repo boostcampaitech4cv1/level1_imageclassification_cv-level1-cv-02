@@ -1,5 +1,6 @@
 *.tar
-*.csv
+*.pth
+*.pt
 
 # Local works
 local/*
