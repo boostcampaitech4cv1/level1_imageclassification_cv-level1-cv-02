@@ -149,7 +149,7 @@ def convertAgeGenderMaskToLabel(mask_label: int, gender_label: int, age_label: i
     return mask_label*6 + gender_label*3 + age_label
 
 
-def CombineAgeGenderMaskSubmission(mask_fn: str, gender_fn: str, age_fn: str):
+def combineAgeGenderMaskSubmission(mask_fn: str, gender_fn: str, age_fn: str):
     """
     mask_fn : mask_{version}
     gender_fn : gender_{version}
