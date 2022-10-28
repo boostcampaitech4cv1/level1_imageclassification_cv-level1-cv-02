@@ -101,13 +101,14 @@ def train(model, optimizer, train_loader, test_loader, scheduler, args, datetime
         if best_score < val_acc:
             best_score = val_acc
             print(
-                f'*New Best -> Epoch [{epoch}] / best_score : [{best_score:.5f}]')
+                f' * New Best Model -> Epoch [{epoch}] / best_score : [{best_score:.5f}]')
             U.saveModel(model=model, optimizer=optimizer,
                         args=args, datetime=datetime, path=path_model_weight)
+            print(" -> The model has been saved at " + path_model_weight)
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="params")
     parser.add_argument('--epochs', type=int, default=30)
     parser.add_argument('--validation_ratio', type=float, default=0.2)
     parser.add_argument('--step_size', type=int, default=5)
@@ -124,7 +125,7 @@ if __name__ == '__main__':
                         default="GenderWeight.tar")
     parser.add_argument('--target_model', type=str,
                         default="ResNext_GenderV0_KHS()")
-    args = parser.parse_args('')
+    args = parser.parse_args()
     print(args)
 
     U.setSeedEverything(args.seed)
