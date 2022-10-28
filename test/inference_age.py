@@ -5,7 +5,7 @@ sys.path.append('../')
 from utils.CustomDataset import CustomDataset
 
 from tqdm import tqdm
-from utils.Utility import load_model
+from utils.Utility import onlyLoadModel
 from models.Backbone import ResnetBackBone
 import pandas as pd
 import torch
@@ -17,7 +17,7 @@ from albumentations.pytorch.transforms import ToTensorV2
 def inference(args):
     model = ResnetBackBone(3).to(args.device)
     model_path = os.path.join(args.ckpt_dir, '10_best_model.pth')
-    model = load_model(model, model_path, args.device)
+    model = onlyLoadModel(model, model_path, args.device)
     model.eval()
 
     test_df = pd.read_csv(args.test_csv)
