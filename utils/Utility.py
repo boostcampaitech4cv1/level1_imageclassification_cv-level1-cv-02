@@ -169,3 +169,22 @@ def combineAgeGenderMaskSubmission(mask_fn: str, gender_fn: str, age_fn: str):
     submission = pd.read_csv(os.path.join('../data/eval', 'info.csv'))
     submission['ans'] = sum_of_sub
     submission.to_csv(os.path.join('../', 'submission.csv'), index=False)
+
+
+def randBbox(size, lam):
+    W = size[2]
+    H = size[3]
+    cut_rat = np.sqrt(1. - lam)
+    cut_w = np.int(W * cut_rat)
+    cut_h = np.int(H * cut_rat)
+
+    # uniform
+    cx = np.random.randint(W)
+    cy = np.random.randint(H)
+
+    bbx1 = np.clip(cx - cut_w // 2, 0, W)
+    bby1 = np.clip(cy - cut_h // 2, 0, H)
+    bbx2 = np.clip(cx + cut_w // 2, 0, W)
+    bby2 = np.clip(cy + cut_h // 2, 0, H)
+
+    return bbx1, bby1, bbx2, bby2
