@@ -87,7 +87,7 @@ def encodeAge(status: int or str):
         return index
 
     elif type(status) == str:
-        return AGE_CLASS.index(status)
+        return AGE_CLASS.index(status)  # type: ignore
 
     else:
         raise ValueError
@@ -101,13 +101,13 @@ def mixUp(a, b):
     pass
 
 
-def saveModel(model, optimizer, args, datetime):
+def saveModel(model, optimizer, args, datetime, path):
     torch.save({
         'model': model.state_dict(),
         'optim': optimizer.state_dict(),
         'args': args,
         'save_time': datetime,
-    }, args.save_name + datetime.strftime(".%Y-%m-%d.%H.%M.%S") + '.tar')
+    }, path)
 
 
 def loadModel(path: str):
