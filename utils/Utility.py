@@ -2,6 +2,7 @@ import random
 import os
 import numpy as np
 import pandas as pd
+import datetime
 import torch
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
@@ -14,10 +15,10 @@ AGE_CLASS = ['X<30', '30<=X<60', '60<=X']
 def splitDataset(dataset: pd.DataFrame, validation_ratio: float = 0.2, random_state: int = 0, shuffle: bool = True, group_key: str = "id"):
     df_train_data = []
     df_validation_data = []
-    ids = dataset['id'].unique()
+    ids = dataset[group_key].unique()
     if (shuffle):
         random.Random(random_state).shuffle(ids)
-    ratio_validation = int(ids.size * 0.2)
+    ratio_validation = int(ids.size * validation_ratio)
     idxs_validation = ids[0:ratio_validation]
     idxjudge = np.zeros_like(ids, np.bool8)
     idxjudge[idxs_validation] = True
@@ -86,7 +87,7 @@ def encodeAge(status: int or str):
         return index
 
     elif type(status) == str:
-        return AGE_CLASS.index(status)
+        return AGE_CLASS.index(status)  # type: ignore
 
     else:
         raise ValueError
@@ -96,7 +97,21 @@ def decodeAge(status: int):
     return AGE_CLASS[status]
 
 
-def load_model(model, path: str, device):
+def saveModel(model, optimizer, args, datetime, path):
+    torch.save({
+        'model': model.state_dict(),
+        'optim': optimizer.state_dict(),
+        'args': args,
+        'save_time': datetime,
+    }, path)
+
+
+def loadModel(path: str):
+    obj = torch.load(path)
+    return obj['model'], obj['optim'], obj['args'], obj['save_time']
+
+
+def onlyLoadModel(model, path: str, device):
     ckpt = torch.load(path, map_location=device)
     model.load_state_dict(ckpt)
     return model
@@ -116,7 +131,7 @@ class Args():
         save_dir
     ):
         self.root_path = root_path
-        self.random_seed= random_seed
+        self.random_seed = random_seed
         self.csv_path = csv_path
         self.lr = lr
         self.batch_size = batch_size
@@ -124,3 +139,33 @@ class Args():
         self.device = device
         self.img_size = img_size
         self.save_dir = save_dir
+
+
+def convertAgeGenderMaskToLabel(mask_label: int, gender_label: int, age_label: int) -> int:
+    return mask_label*6 + gender_label*3 + age_label
+
+
+def combineAgeGenderMaskSubmission(mask_fn: str, gender_fn: str, age_fn: str):
+    """
+    mask_fn : mask_{version}
+    gender_fn : gender_{version}
+    age_fn : age_{version}
+    """
+    csv_path = os.path.join('../test', 'csv')
+    csv_file_list = os.listdir(csv_path)
+
+    for file_name in csv_file_list:
+        if mask_fn in file_name:
+            df_mask = pd.read_csv(os.path.join(csv_path, file_name))
+        elif gender_fn in file_name:
+            df_gender = pd.read_csv(os.path.join(csv_path, file_name))
+        elif age_fn in file_name:
+            df_age = pd.read_csv(os.path.join(csv_path, file_name))
+    
+    sum_of_sub = []
+    for m,g,a in zip(df_mask.ans, df_gender.ans, df_age.ans):
+        sum_of_sub.append(m*6 + g*2 + a*3)
+    
+    submission = pd.read_csv(os.path.join('../data/eval', 'info.csv'))
+    submission['ans'] = sum_of_sub
+    submission.to_csv(os.path.join('../', 'submission.csv'), index=False)
