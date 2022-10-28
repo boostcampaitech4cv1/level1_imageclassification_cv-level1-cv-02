@@ -96,10 +96,6 @@ def decodeAge(status: int):
     return AGE_CLASS[status]
 
 
-def mixUp(a, b):
-    pass
-
-
 def load_model(model, path: str, device):
     ckpt = torch.load(path, map_location=device)
     model.load_state_dict(ckpt)

@@ -1,4 +1,5 @@
 import cv2
+import os
 from torch.utils.data import Dataset
 
 
@@ -10,7 +11,7 @@ class CustomDataset(Dataset):
         self.transforms = transforms
 
     def __getitem__(self, index):
-        img_path = self.img_paths[index]
+        img_path = os.path.join('../', self.img_paths[index])
         img = cv2.imread(img_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         h, w, c = img.shape
