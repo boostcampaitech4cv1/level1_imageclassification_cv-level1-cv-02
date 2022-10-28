@@ -109,6 +109,9 @@ def train(model, optimizer, train_loader, test_loader, scheduler, args, datetime
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--epochs', type=int, default=30)
+    parser.add_argument('--validation_ratio', type=float, default=0.2)
+    parser.add_argument('--step_size', type=int, default=5)
+    parser.add_argument('--step_gamma', type=float, default=0.8)
     parser.add_argument('--lr', type=float, default=4e-3)
     parser.add_argument('--batch_size', type=int, default=16)
     parser.add_argument('--seed', type=int, default=41)
@@ -122,13 +125,14 @@ if __name__ == '__main__':
     parser.add_argument('--target_model', type=str,
                         default="ResNext_GenderV0_KHS()")
     args = parser.parse_args('')
+    print(args)
 
     U.setSeedEverything(args.seed)
 
     target_model = eval(args.target_model)
     df = pd.read_csv(args.csv_path)
     train_df, val_df = U.splitDataset(
-        df,  validation_ratio=0.4, random_state=args.seed)
+        df,  validation_ratio=args.validation_ratio, random_state=args.seed)
     train_img_paths = train_df['path'].values
     train_labels = train_df['gender_class'].values
     val_img_paths = val_df['path'].values
@@ -139,6 +143,8 @@ if __name__ == '__main__':
                                     args.img_size, args.img_size, scale=(0.8, 1.0)),
                                 A.RandomBrightnessContrast(p=0.3),
                                 A.RandomGamma(p=0.3),
+                                A.RandomFog(),
+                                A.RandomToneCurve(),
                                 A.HorizontalFlip(p=0.5),
                                 A.Normalize(mean=(0.485, 0.456, 0.406), std=(
                                     0.229, 0.224, 0.225), max_pixel_value=255.0, always_apply=False, p=1.0),
@@ -163,8 +169,8 @@ if __name__ == '__main__':
     model.eval()
     optimizer = torch.optim.Adam(params=model.parameters(), lr=args.lr)
 
-    scheduler = None
-    # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
+    # scheduler = None
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.step_size, gamma=args.step_gamma)
 
     # start time
     dt = datetime.datetime.now()
