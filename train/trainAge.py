@@ -6,6 +6,7 @@ sys.path.append('../')
 import argparse
 import json
 from tqdm import tqdm
+from copy import deepcopy
 
 from torch.utils.data import DataLoader
 import torch
@@ -19,8 +20,8 @@ from albumentations.pytorch.transforms import ToTensorV2
 from sklearn.model_selection import train_test_split
 
 from utils.CustomDataset import CustomDataset
-from models.Backbone import ResnetBackBone
-from utils.Utility import setSeedEverything, calcF1Score, randBbox
+from models.Backbone import EfficientBackBone
+from utils.Utility import setSeedEverything, calcF1Score
 
 def train(args):
 
@@ -43,7 +44,7 @@ def train(args):
     
     train_dataset = CustomDataset(args.train_path, train_df.path.values, train_df.age_class.values, transforms=transform)
     train_loader = DataLoader(
-        train_dataset, 
+        train_dataset,
         batch_size=args.batch_size, 
         shuffle=True, 
         num_workers=2,
@@ -60,10 +61,10 @@ def train(args):
         drop_last=True)
 
     # model
-    model = ResnetBackBone(3).to(args.device)
+    model = EfficientBackBone(3).to(args.device)
 
     # loss & metric
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.CrossEntropyLoss() # change to f1 loss
     optimizer = optim.Adam(
         model.parameters(),
         lr=args.lr,
@@ -80,7 +81,7 @@ def train(args):
     # train
     best_val_acc = 0
     best_val_loss = np.inf
-    best_model = None
+    best_model_param = None
     for epoch in range(1, args.epochs+1):
         model.train()
         loss_value = 0
@@ -89,23 +90,12 @@ def train(args):
             inputs = data['image'].to(args.device)
             labels = data['label'].to(args.device)
 
-            r = np.random.rand(1)
-            if r < 0.5:
-                lam = np.random.beta(args.beta, args.beta)
-                rand_index = torch.randperm(inputs.size()[0]).to(args.device)
-                target_a = labels
-                target_b = labels[rand_index]
-                bbx1, bby1, bbx2, bby2 = randBbox(inputs.size(), lam)
-                inputs[:, :, bbx1:bbx2, bby1:bby2] = inputs[rand_index, :, bbx1:bbx2, bby1:bby2]
-                # adjust lambda to exactly match pixel ratio
-                lam = 1 - ((bbx2 - bbx1) * (bby2 - bby1) / (inputs.size()[-1] * inputs.size()[-2]))
-                # compute output
-                outs = model(inputs)
-                loss = criterion(outs, target_a) * lam + criterion(outs, target_b) * (1. - lam)
-            else:
-                outs = model(inputs)
-                preds = torch.argmax(outs, dim=-1)
-                loss = criterion(outs, labels)
+            
+            outs = model(inputs)
+            preds = torch.argmax(outs, dim=-1)
+            loss = criterion(outs, labels)
+
+            matches += (preds == labels).sum().item()
 
 
             optimizer.zero_grad()
@@ -113,7 +103,6 @@ def train(args):
             optimizer.step()
 
             loss_value += loss.item()
-            matches += (preds == labels).sum().item()
             if (idx + 1) % args.log_interval == 0:
                 train_loss = loss_value / args.log_interval
                 train_acc = matches / args.batch_size / args.log_interval
@@ -129,7 +118,6 @@ def train(args):
             model.eval()
             val_loss_items = []
             val_acc_items = []
-            figure = None
             for val_data in val_loader:
                 inputs, labels = val_data['image'], val_data['label']
                 inputs = inputs.to(args.device)
@@ -144,14 +132,14 @@ def train(args):
                 val_loss_items.append(loss)
                 val_acc_items.append(acc)
 
-                best_val_loss = min(best_val_loss, loss)
-                if acc > best_val_acc:
-                    best_val_acc = acc
-                    best_model = model
             
             val_loss = np.sum(val_loss_items) / len(val_loader)
             val_acc = np.sum(val_acc_items) / len(val_dataset)
             best_val_loss = min(best_val_loss, val_loss)
+            
+            if val_acc > best_val_acc:
+                best_val_acc = val_loss
+                best_model_param = deepcopy(model.state_dict())
 
             logger.add_scalar("Val/loss", val_loss, epoch)
             logger.add_scalar("Val/accuracy", val_acc, epoch)
@@ -159,7 +147,7 @@ def train(args):
         print(f'EPOCH: {epoch}/{args.epochs} | train loss: {train_loss:.3f}, train acc: {train_acc:.3f} | val loss: {val_loss:.3f}, val acc: {val_acc:.3f} f1_score: {f1_score:.3f}')
 
     os.makedirs(f'{args.save_dir}', exist_ok=True)
-    torch.save(best_model.state_dict(), f"{args.save_dir}/{args.epochs}_best_model.pth")
+    torch.save(best_model_param, f"{args.save_dir}/{args.epochs}_{args.model_name}.pth")
 
     print(f'best_val_acc: {best_val_acc} | best_val_loss: {best_val_loss:.3f}')
 
@@ -169,8 +157,8 @@ if __name__ == '__main__':
 
     # Data and model checkpoints directories
     parser.add_argument('--seed', type=int, default=999, help='random seed (default: 999)')
-    parser.add_argument('--epochs', type=int, default=10, help='number of epochs to train (default: 10)')
-    parser.add_argument("--resize", nargs="+", type=list, default=[256, 256], help='resize size for image when training')
+    parser.add_argument('--epochs', type=int, default=15, help='number of epochs to train (default: 10)')
+    parser.add_argument("--resize", nargs="+", type=list, default=[224, 224], help='resize size for image when training')
     parser.add_argument('--batch_size', type=int, default=64, help='input batch size for training (default: 64)')
     parser.add_argument('--valid_batch_size', type=int, default=1000, help='input batch size for validing (default: 1000)')
     parser.add_argument('--lr', type=float, default=1e-3, help='learning rate (default: 1e-3)')
@@ -180,8 +168,10 @@ if __name__ == '__main__':
     parser.add_argument('--log_interval', type=int, default=20, help='how many batches to wait before logging training status')
     parser.add_argument('--log_dir', type=str, default='./log')
     parser.add_argument('--train_path', type=str, default='../data/train/images/')
-    parser.add_argument('--train_csv', type=str, default='../data/train_i_samping.csv')
+    parser.add_argument('--train_csv', type=str, default='../data/train_i_sampling.csv')
     parser.add_argument('--save_dir', type=str, default='../models/ckpt')
+    parser.add_argument('--model_name', type=str, default='best_model_v1')
+
 
     parser.add_argument('--device', type=str, default='cuda')
 
