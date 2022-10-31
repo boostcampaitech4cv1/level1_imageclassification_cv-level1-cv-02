@@ -7,7 +7,7 @@ import torchvision.models as models
 
 
 class Resnet152_GenderV0_KHS(nn.Module):
-    def __init__(self: int):
+    def __init__(self):
         super(Resnet152_GenderV0_KHS, self).__init__()
         self.backborn = models.resnet152(
             weights=models.ResNet152_Weights.IMAGENET1K_V1)
