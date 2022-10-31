@@ -46,6 +46,7 @@ def inference(args):
             preds.extend(pred.cpu().numpy())
         
     test_df['ans'] = preds
+    test_df = test_df.drop('images', axis=1)
     save_path = os.path.join(args.save_dir, f'{args.csv_name}.csv')
     test_df.to_csv(save_path, index=False)
 
@@ -59,7 +60,7 @@ if __name__ == '__main__':
     parser.add_argument('--save_dir', type=str, default='./csv/')
     parser.add_argument('--test_path', type=str, default='../data/eval/images/')
     parser.add_argument('--test_csv', type=str, default='../data/eval_i.csv')
-    parser.add_argument('--csv_name', type=str, default='submission_age_v0')
+    parser.add_argument('--csv_name', type=str, default='submission_age_v2')
 
 
     parser.add_argument('--device', type=str, default='cuda')
