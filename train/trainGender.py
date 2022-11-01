@@ -109,22 +109,22 @@ def train(model, optimizer, train_loader, test_loader, scheduler, args, datetime
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="params")
-    parser.add_argument('--epochs', type=int, default=30)
-    parser.add_argument('--validation_ratio', type=float, default=0.2)
-    parser.add_argument('--step_size', type=int, default=5)
-    parser.add_argument('--step_gamma', type=float, default=0.8)
-    parser.add_argument('--lr', type=float, default=4e-3)
-    parser.add_argument('--batch_size', type=int, default=16)
+    parser.add_argument('--epochs', type=int, default=20)
+    parser.add_argument('--validation_ratio', type=float, default=0.3)
+    parser.add_argument('--step_size', type=int, default=10)
+    parser.add_argument('--step_gamma', type=float, default=1.0)
+    parser.add_argument('--lr', type=float, default=1e-3)
+    parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--seed', type=int, default=41)
-    parser.add_argument('--img_size', type=int, default=244)
+    parser.add_argument('--img_size', type=int, default=224)
     parser.add_argument('--device', default='cuda')
-    parser.add_argument('--csv_path', type=str, default='../train_i.csv')
+    parser.add_argument('--csv_path', type=str, default='../data/train_i.csv')
     parser.add_argument('--save_path', type=str,
                         default="../models/checkpoint/")
     parser.add_argument('--save_name', type=str,
                         default="GenderWeight.tar")
     parser.add_argument('--target_model', type=str,
-                        default="ResNext_GenderV0_KHS()")
+                        default="EfficientnetV2M_GenderV0_KHS()")
     args = parser.parse_args()
     print(args)
 
@@ -139,14 +139,14 @@ if __name__ == '__main__':
     val_img_paths = val_df['path'].values
     val_labels = val_df['gender_class'].values
     train_transform = A.Compose([
-                                # A.Resize(args.img_size, args.img_size),
-                                A.RandomResizedCrop(
-                                    args.img_size, args.img_size, scale=(0.8, 1.0)),
-                                A.RandomBrightnessContrast(p=0.3),
-                                A.RandomGamma(p=0.3),
-                                A.RandomFog(),
-                                A.RandomToneCurve(),
-                                A.HorizontalFlip(p=0.5),
+                                A.Resize(args.img_size, args.img_size),
+                                # A.RandomResizedCrop(
+                                #     args.img_size, args.img_size, scale=(0.8, 1.0)),
+                                # A.RandomBrightnessContrast(p=0.3),
+                                # A.RandomGamma(p=0.3),
+                                # A.RandomFog(),
+                                # A.RandomToneCurve(),
+                                # A.HorizontalFlip(p=0.5),
                                 A.Normalize(mean=(0.485, 0.456, 0.406), std=(
                                     0.229, 0.224, 0.225), max_pixel_value=255.0, always_apply=False, p=1.0),
                                 ToTensorV2()
