@@ -97,10 +97,6 @@ def decodeAge(status: int):
     return AGE_CLASS[status]
 
 
-def mixUp(a, b):
-    pass
-
-
 def saveModel(model, optimizer, args, datetime, path):
     torch.save({
         'model': model.state_dict(),
@@ -115,7 +111,7 @@ def loadModel(path: str):
     return obj['model'], obj['optim'], obj['args'], obj['save_time']
 
 
-def load_model(model, path: str, device):
+def onlyLoadModel(model, path: str, device):
     ckpt = torch.load(path, map_location=device)
     model.load_state_dict(ckpt)
     return model
@@ -168,8 +164,27 @@ def combineAgeGenderMaskSubmission(mask_fn: str, gender_fn: str, age_fn: str):
     
     sum_of_sub = []
     for m,g,a in zip(df_mask.ans, df_gender.ans, df_age.ans):
-        sum_of_sub.append(m*6 + g*2 + a*3)
+        sum_of_sub.append(m*6 + g*3 + a)
     
     submission = pd.read_csv(os.path.join('../data/eval', 'info.csv'))
     submission['ans'] = sum_of_sub
     submission.to_csv(os.path.join('../', 'submission.csv'), index=False)
+
+
+def randBbox(size, lam):
+    W = size[2]
+    H = size[3]
+    cut_rat = np.sqrt(1. - lam)
+    cut_w = np.int(W * cut_rat)
+    cut_h = np.int(H * cut_rat)
+
+    # uniform
+    cx = np.random.randint(W)
+    cy = np.random.randint(H)
+
+    bbx1 = np.clip(cx - cut_w // 2, 0, W)
+    bby1 = np.clip(cy - cut_h // 2, 0, H)
+    bbx2 = np.clip(cx + cut_w // 2, 0, W)
+    bby2 = np.clip(cy + cut_h // 2, 0, H)
+
+    return bbx1, bby1, bbx2, bby2
