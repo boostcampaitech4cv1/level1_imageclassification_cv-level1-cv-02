@@ -7,7 +7,7 @@ import torchvision.models as models
 
 
 class ResNext_GenderV0_KHS(nn.Module):
-    def __init__(self: int):
+    def __init__(self):
         super(ResNext_GenderV0_KHS, self).__init__()
         self.backborn = torch.hub.load(
             'pytorch/vision:v0.10.0', 'resnext50_32x4d', weights=models.ResNeXt50_32X4D_Weights.IMAGENET1K_V1)
