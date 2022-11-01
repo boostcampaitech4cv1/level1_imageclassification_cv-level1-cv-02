@@ -138,7 +138,7 @@ def train(args):
             best_val_loss = min(best_val_loss, val_loss)
             
             if val_acc > best_val_acc:
-                best_val_acc = val_loss
+                best_val_acc = val_acc
                 best_model_param = deepcopy(model.state_dict())
 
             logger.add_scalar("Val/loss", val_loss, epoch)
