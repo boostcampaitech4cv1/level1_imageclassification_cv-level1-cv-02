@@ -99,18 +99,18 @@ if __name__ == '__main__':
     parser.add_argument('--validation_ratio', type=float, default=0.2)
     parser.add_argument('--step_size', type=int, default=10)
     parser.add_argument('--step_gamma', type=float, default=1.0)
-    parser.add_argument('--lr', type=float, default=4e-4)
+    parser.add_argument('--lr', type=float, default=1e-3)
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--seed', type=int, default=41)
-    parser.add_argument('--img_size', type=int, default=380)
+    parser.add_argument('--img_size', type=int, default=224)
     parser.add_argument('--device', default='cuda')
-    parser.add_argument('--csv_path', type=str, default='../train_i.csv')
+    parser.add_argument('--csv_path', type=str, default='../data/train_i.csv')
     parser.add_argument('--save_path', type=str,
                         default="../models/checkpoint/")
     parser.add_argument('--save_name', type=str,
-                        default="MGAWeight_EfficientnetB4.tar")
+                        default="Weight_VIT_V0_KHS.tar")
     parser.add_argument('--target_model', type=str,
-                        default="EfficientnetB4()")
+                        default="VIT_V0_KHS()")
     args = parser.parse_args()
     print(args)
 
