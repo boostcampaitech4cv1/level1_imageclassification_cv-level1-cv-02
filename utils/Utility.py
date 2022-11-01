@@ -164,7 +164,7 @@ def combineAgeGenderMaskSubmission(mask_fn: str, gender_fn: str, age_fn: str):
     
     sum_of_sub = []
     for m,g,a in zip(df_mask.ans, df_gender.ans, df_age.ans):
-        sum_of_sub.append(m*6 + g*2 + a*3)
+        sum_of_sub.append(m*6 + g*3 + a)
     
     submission = pd.read_csv(os.path.join('../data/eval', 'info.csv'))
     submission['ans'] = sum_of_sub
