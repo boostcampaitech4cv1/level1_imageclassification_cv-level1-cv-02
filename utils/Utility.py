@@ -144,6 +144,13 @@ class Args():
 def convertAgeGenderMaskToLabel(mask_label: int, gender_label: int, age_label: int) -> int:
     return mask_label*6 + gender_label*3 + age_label
 
+def convertLabelToMaskGenderAge(label: int) -> "tuple[int, int, int]" :
+    mask_label = label // 6
+    label = label % 6
+    gender_label = label // 3
+    label = label % 3
+    age_label = label
+    return mask_label, gender_label, age_label
 
 def combineAgeGenderMaskSubmission(mask_fn: str, gender_fn: str, age_fn: str):
     """

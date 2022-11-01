@@ -23,7 +23,7 @@ if __name__ == '__main__':
                         default='submission_mask.csv')
     parser.add_argument('--csv_result_name', type=str,
                         default="submission.csv")
-    args = parser.parse_args('')
+    args = parser.parse_args()
 
     # Load CSV
     df_age = pd.read_csv(os.path.join(args.csv_path, args.csv_age_name))
