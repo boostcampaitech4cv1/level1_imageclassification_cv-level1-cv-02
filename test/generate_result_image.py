@@ -63,7 +63,7 @@ if __name__ == "__main__":
     parser.add_argument('--path_csv', type=str, default='test/csv/submission.csv')
     parser.add_argument('--path_save_folder', type=str, default="data/result_images/")
     parser.add_argument('--path_save_zip_name', type=str, default="data/result_images.tar")
-    args = parser.parse_args('')
+    args = parser.parse_args()
     os.makedirs(os.path.join(args.path_ref, args.path_save_folder), exist_ok=True)
     df = pd.read_csv(os.path.join(args.path_ref, args.path_csv))
     print(df.head())
