@@ -80,7 +80,7 @@ def train(model, optimizer, train_loader, test_loader, scheduler, args, datetime
             optimizer.step()
 
             train_loss.append(loss.item())
-            train_acc.append((preds == labels).sum().item())
+            train_acc.append((preds == labels).sum().item() / args.batch_size)
 
         tr_loss = np.mean(train_loss)
         tr_acc = np.mean(train_acc)
