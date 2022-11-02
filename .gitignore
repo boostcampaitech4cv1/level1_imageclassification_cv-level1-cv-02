@@ -97,3 +97,9 @@ Pipfile.lock
 
 # wandb
 wandb/
+
+# train
+log/
+
+# ckpt
+*.json

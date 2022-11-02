@@ -25,6 +25,22 @@ class EfficientBackBone(nn.Module):
         x = self.backbone(x)
         return x
 
+class ViTBackBone(nn.Module):
+    def __init__(self, num_classes):
+        super().__init__()
+        self.backbone = models.vit_b_16(weights='DEFAULT')
+        self.fc = nn.Sequential(
+            nn.Linear(1000, 512),
+            nn.BatchNorm1d(512),
+            nn.LeakyReLU(0.2),
+            nn.Dropout(p=0.2),
+            nn.Linear(512, num_classes),
+        )
+    
+    def forward(self, x):
+        x = self.backbone(x)
+        x = self.fc(x)
+        return x
 
 class EfficientNet_V0_KHS(nn.Module):
     def __init__(self, is_freeze:bool = True):
