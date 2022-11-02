@@ -105,7 +105,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="params")
     parser.add_argument('--epochs', type=int, default=20)
     parser.add_argument('--validation_ratio', type=float, default=0.2)
-    parser.add_argument('--step_enable', type=bool, default=False)
+    parser.add_argument('--step_enable', type=bool, default=True)
     parser.add_argument('--step_size', type=int, default=10)
     parser.add_argument('--step_gamma', type=float, default=1.0)
     parser.add_argument('--lr', type=float, default=1e-3)
@@ -117,9 +117,9 @@ if __name__ == '__main__':
     parser.add_argument('--save_path', type=str,
                         default="../models/checkpoint/")
     parser.add_argument('--save_name', type=str,
-                        default="Weight_VIT_V0_KHS.tar")
+                        default="Weight_VIT_V0_KHS_SGD.tar")
     parser.add_argument('--target_model', type=str,
-                        default="VIT_V0_KHS()")
+                        default="VIT_V0_KHS(False)")
     args = parser.parse_args()
     print(args)
 
@@ -162,7 +162,9 @@ if __name__ == '__main__':
     val_loader = DataLoader(
         val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=0)
     model = target_model.to(args.device)
-    optimizer = torch.optim.Adam(params=model.parameters(), lr=args.lr)
+    # optimizer = torch.optim.Adam(params=model.parameters(), lr=args.lr)
+    optimizer = torch.optim.SGD(params=model.parameters(), lr=args.lr, 
+        weight_decay=5e-4)
 
     # scheduler = None
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.step_size, gamma=args.step_gamma)
