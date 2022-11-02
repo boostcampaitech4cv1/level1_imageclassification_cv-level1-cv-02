@@ -22,66 +22,74 @@ import torchvision.models as models
 from sklearn import preprocessing
 
 
-def validation(model, criterion, test_loader, device):
+def validation(model, criterion, test_loader, args):
     model.eval()
 
     model_preds = []
     true_labels = []
 
     val_loss = []
+    val_acc = []
 
     with torch.no_grad():
         for item in tqdm(test_loader):
-            img = item['image']
-            label = item['label']
-            img, label = img.float().to(device), label.to(device)
+            inputs = item['image']
+            labels = item['label']
+            inputs = inputs.to(args.device)
+            labels = labels.to(args.device)
 
-            outs = model(img)
+            outs = model(inputs)
+            preds = torch.argmax(outs, dim=-1)
             
-            loss = criterion(outs, label)
-            
+            loss = criterion(outs, labels)
+            acc = (labels == preds).sum().item()
+
             val_loss.append(loss.item())
+            val_acc.append(acc / args.batch_size)
 
             model_preds += outs.argmax(1).detach().cpu().numpy().tolist()
-            true_labels += label.detach().cpu().numpy().tolist()
+            true_labels += labels.detach().cpu().numpy().tolist()
 
     val_f1 = U.calcF1Score(true_labels, model_preds)
-    return np.mean(val_loss), val_f1
+    return np.mean(val_loss), np.mean(val_acc), val_f1
 
 
 def train(model, optimizer, train_loader, test_loader, scheduler, args, datetime, path_model_weight):
     model.to(args.device)
 
-    criterion = nn.CrossEntropyLoss().to(args.device)
+    criterion = nn.CrossEntropyLoss()#.to(args.device)
 
     best_score = 0
 
     for epoch in range(1, args.epochs+1):
         model.train()
         train_loss = []
+        train_acc = []
         for item in tqdm(train_loader):
-            img = item['image']
-            label = item['label']
-            img, label = img.float().to(args.device), label.to(args.device)
+            inputs = item['image']
+            labels = item['label']
+            inputs = inputs.to(args.device)
+            labels = labels.to(args.device)
             optimizer.zero_grad()
 
-            outs = model(img)
-            loss = criterion(outs, label)
+            outs = model(inputs)
+            preds = torch.argmax(outs, dim=-1)
+            loss = criterion(outs, labels)
 
             loss.backward()
             optimizer.step()
 
             train_loss.append(loss.item())
+            train_acc.append((preds == labels).sum().item() / args.batch_size)
 
         tr_loss = np.mean(train_loss)
+        tr_acc = np.mean(train_acc)
 
-        val_loss, val_acc = validation(
-            model, criterion, test_loader, args.device)
+        val_loss, val_acc, f1 = validation(model, criterion, test_loader, args)
 
-        print(
-            f'Epoch [{epoch}] / Train Loss : [{tr_loss:.5f}] / Val Loss : [{val_loss:.5f}] / F1 : [{val_acc:.5f}]')
+        print(f'Ep[{epoch}] / T.Loss[{tr_loss:.5f}] / T.Acc[{tr_acc:.5f}] / V.Loss[{val_loss:.5f}] / V.Acc[{val_acc:.5f}] / F1[{f1:.5f}]')
 
-        if scheduler is not None:
+        if args.step_enable:
             scheduler.step()
 
         if best_score < val_acc:
@@ -97,20 +105,21 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="params")
     parser.add_argument('--epochs', type=int, default=20)
     parser.add_argument('--validation_ratio', type=float, default=0.2)
+    parser.add_argument('--step_enable', type=bool, default=False)
     parser.add_argument('--step_size', type=int, default=10)
     parser.add_argument('--step_gamma', type=float, default=1.0)
-    parser.add_argument('--lr', type=float, default=4e-4)
-    parser.add_argument('--batch_size', type=int, default=32)
+    parser.add_argument('--lr', type=float, default=1e-3)
+    parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--seed', type=int, default=41)
-    parser.add_argument('--img_size', type=int, default=380)
+    parser.add_argument('--img_size', type=int, default=224)
     parser.add_argument('--device', default='cuda')
-    parser.add_argument('--csv_path', type=str, default='../train_i.csv')
+    parser.add_argument('--csv_path', type=str, default='../data/train_i.csv')
     parser.add_argument('--save_path', type=str,
                         default="../models/checkpoint/")
     parser.add_argument('--save_name', type=str,
-                        default="MGAWeight_EfficientnetB4.tar")
+                        default="Weight_VIT_V0_KHS.tar")
     parser.add_argument('--target_model', type=str,
-                        default="EfficientnetB4()")
+                        default="VIT_V0_KHS()")
     args = parser.parse_args()
     print(args)
 
@@ -123,16 +132,16 @@ if __name__ == '__main__':
     train_img_paths = train_df['path'].values
     train_labels = [U.convertAgeGenderMaskToLabel(m, g, a) for m, g, a in zip(train_df['mask_class'].values, train_df['gender_class'].values, train_df['age_class'].values)]
     val_img_paths = val_df['path'].values
-    val_labels = [U.convertAgeGenderMaskToLabel(m, g, a) for m, g, a in zip(train_df['mask_class'].values, train_df['gender_class'].values, train_df['age_class'].values)]
+    val_labels = [U.convertAgeGenderMaskToLabel(m, g, a) for m, g, a in zip(val_df['mask_class'].values, val_df['gender_class'].values, val_df['age_class'].values)]
     train_transform = A.Compose([
-                                A.Resize(args.img_size, args.img_size),
-                                # A.RandomResizedCrop(
-                                #     args.img_size, args.img_size, scale=(0.8, 1.0)),
-                                # A.RandomBrightnessContrast(p=0.3),
-                                # A.RandomGamma(p=0.3),
+                                # A.Resize(args.img_size, args.img_size),
+                                A.RandomResizedCrop(
+                                    args.img_size, args.img_size, scale=(0.6, 1.0)),
+                                A.RandomBrightnessContrast(p=0.3),
+                                A.RandomGamma(p=0.3),
                                 # A.RandomFog(),
-                                # A.RandomToneCurve(),
-                                # A.HorizontalFlip(p=0.5),
+                                A.RandomToneCurve(),
+                                A.HorizontalFlip(p=0.5),
                                 A.Normalize(mean=(0.485, 0.456, 0.406), std=(
                                     0.229, 0.224, 0.225), max_pixel_value=255.0, always_apply=False, p=1.0),
                                 ToTensorV2()
@@ -153,7 +162,6 @@ if __name__ == '__main__':
     val_loader = DataLoader(
         val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=0)
     model = target_model.to(args.device)
-    model.eval()
     optimizer = torch.optim.Adam(params=model.parameters(), lr=args.lr)
 
     # scheduler = None

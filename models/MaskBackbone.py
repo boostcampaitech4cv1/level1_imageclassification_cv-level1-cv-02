@@ -1,9 +1,9 @@
-import torch 
+
+import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import torchvision.models as models
-
 
 class ResNext_GenderV0_SAWOL(nn.Module):
     def __init__(self: int):

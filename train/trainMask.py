@@ -19,7 +19,7 @@ from albumentations.pytorch.transforms import ToTensorV2
 from sklearn.model_selection import train_test_split
 
 from utils.CustomDataset import CustomDataset
-from models.ResNext_GenderV0_sawol import ResNext_GenderV0_SAWOL
+import models
 from utils.Utility import setSeedEverything, calcF1Score
 
 from sklearn.metrics import classification_report
