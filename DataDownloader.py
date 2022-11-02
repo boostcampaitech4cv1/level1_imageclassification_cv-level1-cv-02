@@ -1,0 +1,5 @@
+!wget 'https://aistages-prod-server-public.s3.amazonaws.com/app/Competitions/000206/data/train.tar.gz'
+!wget 'https://aistages-prod-server-public.s3.amazonaws.com/app/Competitions/000206/data/code.tar.gz'
+!mkdir './data'
+!tar -zxvf './train.tar.gz' --directory='./data'
+!tar -zxvf './code.tar.gz' --directory='./data'
