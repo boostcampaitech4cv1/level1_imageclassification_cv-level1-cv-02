@@ -134,14 +134,14 @@ if __name__ == '__main__':
     val_img_paths = val_df['path'].values
     val_labels = [U.convertAgeGenderMaskToLabel(m, g, a) for m, g, a in zip(val_df['mask_class'].values, val_df['gender_class'].values, val_df['age_class'].values)]
     train_transform = A.Compose([
-                                A.Resize(args.img_size, args.img_size),
-                                # A.RandomResizedCrop(
-                                #     args.img_size, args.img_size, scale=(0.8, 1.0)),
-                                # A.RandomBrightnessContrast(p=0.3),
-                                # A.RandomGamma(p=0.3),
+                                # A.Resize(args.img_size, args.img_size),
+                                A.RandomResizedCrop(
+                                    args.img_size, args.img_size, scale=(0.6, 1.0)),
+                                A.RandomBrightnessContrast(p=0.3),
+                                A.RandomGamma(p=0.3),
                                 # A.RandomFog(),
-                                # A.RandomToneCurve(),
-                                # A.HorizontalFlip(p=0.5),
+                                A.RandomToneCurve(),
+                                A.HorizontalFlip(p=0.5),
                                 A.Normalize(mean=(0.485, 0.456, 0.406), std=(
                                     0.229, 0.224, 0.225), max_pixel_value=255.0, always_apply=False, p=1.0),
                                 ToTensorV2()
