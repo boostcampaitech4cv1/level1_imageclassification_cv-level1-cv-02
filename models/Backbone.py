@@ -26,9 +26,9 @@ class EfficientBackBone(nn.Module):
         return x
 
 
-class EfficientnetB4(nn.Module):
-    def __init__(self, is_freeze:bool = True):
-        super(EfficientnetB4, self).__init__()
+class EfficientNet_V0_KHS(nn.Module):
+    def __init__(self, is_freeze:bool):
+        super(EfficientNet_V0_KHS, self).__init__()
         self.number_of_class = 18
         self.backborn = models.efficientnet_v2_m(
             weights=models.EfficientNet_V2_M_Weights.DEFAULT)
