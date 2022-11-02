@@ -92,8 +92,8 @@ def train(model, optimizer, train_loader, test_loader, scheduler, args, datetime
         if args.step_enable:
             scheduler.step()
 
-        if best_score < val_acc:
-            best_score = val_acc
+        if best_score < f1:
+            best_score = f1
             print(
                 f' * New Best Model -> Epoch [{epoch}] / best_score : [{best_score:.5f}]')
             U.saveModel(model=model, optimizer=optimizer,
