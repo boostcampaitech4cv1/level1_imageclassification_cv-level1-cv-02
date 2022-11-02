@@ -105,21 +105,21 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="params")
     parser.add_argument('--epochs', type=int, default=20)
     parser.add_argument('--validation_ratio', type=float, default=0.2)
-    parser.add_argument('--step_enable', type=bool, default=False)
+    parser.add_argument('--step_enable', type=bool, default=True)
     parser.add_argument('--step_size', type=int, default=10)
-    parser.add_argument('--step_gamma', type=float, default=1.0)
+    parser.add_argument('--step_gamma', type=float, default=0.5)
     parser.add_argument('--lr', type=float, default=1e-3)
-    parser.add_argument('--batch_size', type=int, default=64)
+    parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--seed', type=int, default=41)
-    parser.add_argument('--img_size', type=int, default=224)
+    parser.add_argument('--img_size', type=int, default=384)
     parser.add_argument('--device', default='cuda')
     parser.add_argument('--csv_path', type=str, default='../data/train_i.csv')
     parser.add_argument('--save_path', type=str,
                         default="../models/checkpoint/")
     parser.add_argument('--save_name', type=str,
-                        default="Weight_VIT_V0_KHS.tar")
+                        default="Weight_VIT_V1_KHS_SGD.tar")
     parser.add_argument('--target_model', type=str,
-                        default="VIT_V0_KHS()")
+                        default="VIT_V1_KHS(False)")
     args = parser.parse_args()
     print(args)
 
@@ -134,13 +134,13 @@ if __name__ == '__main__':
     val_img_paths = val_df['path'].values
     val_labels = [U.convertAgeGenderMaskToLabel(m, g, a) for m, g, a in zip(val_df['mask_class'].values, val_df['gender_class'].values, val_df['age_class'].values)]
     train_transform = A.Compose([
-                                # A.Resize(args.img_size, args.img_size),
-                                A.RandomResizedCrop(
-                                    args.img_size, args.img_size, scale=(0.6, 1.0)),
-                                A.RandomBrightnessContrast(p=0.3),
-                                A.RandomGamma(p=0.3),
-                                # A.RandomFog(),
-                                A.RandomToneCurve(),
+                                A.Resize(args.img_size, args.img_size),
+                                # A.RandomResizedCrop(
+                                #     args.img_size, args.img_size, scale=(0.6, 1.0)),
+                                # A.RandomBrightnessContrast(p=0.3),
+                                # A.RandomGamma(p=0.3),
+                                # # A.RandomFog(),
+                                # A.RandomToneCurve(),
                                 A.HorizontalFlip(p=0.5),
                                 A.Normalize(mean=(0.485, 0.456, 0.406), std=(
                                     0.229, 0.224, 0.225), max_pixel_value=255.0, always_apply=False, p=1.0),
@@ -162,7 +162,9 @@ if __name__ == '__main__':
     val_loader = DataLoader(
         val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=0)
     model = target_model.to(args.device)
-    optimizer = torch.optim.Adam(params=model.parameters(), lr=args.lr)
+    # optimizer = torch.optim.Adam(params=model.parameters(), lr=args.lr)
+    optimizer = torch.optim.SGD(params=model.parameters(), lr=args.lr, 
+        weight_decay=5e-4)
 
     # scheduler = None
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.step_size, gamma=args.step_gamma)
