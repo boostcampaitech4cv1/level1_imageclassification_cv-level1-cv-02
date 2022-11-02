@@ -27,7 +27,7 @@ class EfficientBackBone(nn.Module):
 
 
 class EfficientNet_V0_KHS(nn.Module):
-    def __init__(self, is_freeze:bool):
+    def __init__(self, is_freeze:bool = True):
         super(EfficientNet_V0_KHS, self).__init__()
         self.number_of_class = 18
         self.backborn = models.efficientnet_v2_m(
@@ -36,7 +36,7 @@ class EfficientNet_V0_KHS(nn.Module):
             for p in self.backborn.parameters():
                 p.requires_grad = False
         self.backborn.classifier = nn.Sequential(
-            nn.Linear(1000, 512),
+            nn.Linear(1280, 512),
             nn.BatchNorm1d(512),
             nn.ReLU(),
             nn.Dropout(p=0.3),
