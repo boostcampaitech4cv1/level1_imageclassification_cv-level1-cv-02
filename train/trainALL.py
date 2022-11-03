@@ -4,6 +4,7 @@ sys.path.append('../')  # import를 위해 경로추가
 from utils import Utility as U
 from utils import CustomTransform as UT
 from utils import CustomDataset
+from utils import LossFunction as UL
 import datetime
 import argparse
 from torch.utils.data import Dataset, DataLoader
@@ -58,7 +59,8 @@ def validation(model, criterion, test_loader, args):
 def train(model, optimizer, train_loader, test_loader, scheduler, args, datetime, path_model_weight):
     model.to(args.device)
 
-    criterion = nn.CrossEntropyLoss()#.to(args.device)
+    # criterion = nn.CrossEntropyLoss()#.to(args.device)
+    criterion = UL.FocalLoss().to(args.device)
 
     best_score = 0
 
