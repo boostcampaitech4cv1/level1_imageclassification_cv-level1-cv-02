@@ -106,7 +106,7 @@ def train(model, optimizer, train_loader, test_loader, scheduler, args, datetime
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="params")
-    parser.add_argument('--epochs', type=int, default=20)
+    parser.add_argument('--epochs', type=int, default=10)
     parser.add_argument('--validation_ratio', type=float, default=0.2)
     parser.add_argument('--step_enable', type=bool, default=True)
     parser.add_argument('--step_size', type=int, default=20)
