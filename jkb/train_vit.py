@@ -16,7 +16,7 @@ from torch.optim.lr_scheduler import StepLR
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
-from dataset2 import MaskBaseDataset, TestDataset
+from dataset_album import MaskBaseDataset, TestDataset
 from loss import create_criterion
 from sklearn.metrics import f1_score
 
@@ -407,7 +407,7 @@ if __name__ == '__main__':
     #parser.add_argument('--valid_batch_size', type=int, default=1000, help='input batch size for validing (default: 1000)')
     parser.add_argument('--valid_batch_size', type=int, default=64, help='input batch size for validing (default: 64)')
     #parser.add_argument('--model', type=str, default='Custom_EfficientNet', help='model type (default: BaseModel)')
-    parser.add_argument('--model', type=str, default='Timm_vit', help='model type (default: Custom_Vit_b_16)')
+    parser.add_argument('--model', type=str, default='TimmVit', help='model type (default: Custom_Vit_b_16)')
     parser.add_argument('--optimizer', type=str, default='SGD', help='optimizer type (default: SGD)')
     #parser.add_argument('--optimizer', type=str, default='Adam', help='optimizer type (default: SGD)')
     parser.add_argument('--lr', type=float, default=1e-3, help='learning rate (default: 1e-3)')

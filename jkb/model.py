@@ -79,12 +79,12 @@ class MyModel(nn.Module):
         return x
 
 
-class Custom_Vgg_19bn(nn.Module):
+class CustomVgg19bn(nn.Module):
     '''
         Vgg_19bn 
     '''
     def __init__(self, num_classes=18):
-        super(Custom_Vgg_19bn, self).__init__()
+        super(CustomVgg19bn, self).__init__()
         
         self.num_classes = num_classes
         self.model = vgg19_bn(weights=VGG19_BN_Weights.IMAGENET1K_V1)
@@ -103,12 +103,12 @@ class Custom_Vgg_19bn(nn.Module):
         return output
     
         
-class Custom_Resnext50_32x4d(nn.Module):
+class CustomResnext5032x4d(nn.Module):
     '''
         Resnext50
     '''
     def __init__(self,num_classes=18):
-        super(Custom_Resnext50_32x4d, self).__init__()
+        super(CustomResnext5032x4d, self).__init__()
         
         self.model = resnext50_32x4d(weights=ResNeXt50_32X4D_Weights.IMAGENET1K_V1)
         self.model.fc = nn.Sequential(
@@ -119,13 +119,13 @@ class Custom_Resnext50_32x4d(nn.Module):
         output = self.model(x)
         return output
     
-class Custom_Resnext50_32x4d_freeze(nn.Module):
+class CustomResnext5032x4dfreeze(nn.Module):
     '''
         Resnext50 freeze
     '''
     
     def __init__(self, num_classes=18):
-        super(Custom_Resnext50_32x4d_freeze, self).__init__()
+        super(CustomResnext5032x4dfreeze, self).__init__()
         
         self.num_classes = num_classes
         self.model = resnext50_32x4d(weights=ResNeXt50_32X4D_Weights.IMAGENET1K_V1)
@@ -143,12 +143,12 @@ class Custom_Resnext50_32x4d_freeze(nn.Module):
     
     
     
-class Custom_Vit_b_16(nn.Module):
+class CustomVitb16(nn.Module):
     '''
         Vit_b_16 
     '''
     def __init__(self, num_classes=18):
-        super(Custom_Vit_b_16,self).__init__()
+        super(CustomVitb16,self).__init__()
         
         self.model = vit_b_16(weights=ViT_B_16_Weights.IMAGENET1K_V1)
         self.model.heads = nn.Linear(768, num_classes)
@@ -208,12 +208,12 @@ class Custom_Vit_b_16(nn.Module):
         return output
     
     
-class Custom_EfficientNet(nn.Module):
+class CustomEfficientNet(nn.Module):
     '''
         EfficientNet_b2
     '''
     def __init__(self, num_classes=18):
-        super(Custom_EfficientNet,self).__init__()
+        super(CustomEfficientNet,self).__init__()
         
         self.model = efficientnet_b2(weights=EfficientNet_B2_Weights.IMAGENET1K_V1)
         self.model.classifier = nn.Sequential(
@@ -226,9 +226,9 @@ class Custom_EfficientNet(nn.Module):
         return output
     
     
-class Simple_vit_b_16(nn.Module):
+class SimpleVitb16(nn.Module):
     def __init__(self,num_classes=18):
-        super(Simple_vit_b_16,self).__init__()
+        super(SimpleVitb16,self).__init__()
         
         self.num_classes = num_classes
         self.model = vit_b_16(weights=ViT_B_16_Weights.IMAGENET1K_V1)
@@ -239,9 +239,9 @@ class Simple_vit_b_16(nn.Module):
         return output
     
     
-class Timm_vit(nn.Module):
+class TimmVit(nn.Module):
     def __init__(self, num_classes=18):
-        super(Timm_vit, self).__init__()
+        super(TimmVit, self).__init__()
         
         self.model = timm.create_model('vit_base_patch16_224', pretrained=True, num_classes=18)
         
