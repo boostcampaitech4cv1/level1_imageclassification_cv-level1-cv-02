@@ -15,8 +15,7 @@ from torch.optim.lr_scheduler import StepLR
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
-#from dataset import MaskBaseDataset                
-from dataset3 import MaskBaseDataset                            # 테스트
+from dataset import MaskBaseDataset                
 from loss import create_criterion
 
 import time

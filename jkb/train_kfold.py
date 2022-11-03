@@ -25,7 +25,7 @@ from EarlyStopping import EarlyStopping
 
 from sklearn.model_selection import StratifiedKFold, KFold
 
-from torch.utils.data import ConcatDataset, SubsetRandomSampler              # dataset 합치는거?
+from torch.utils.data import ConcatDataset, SubsetRandomSampler              
 import time
 
 

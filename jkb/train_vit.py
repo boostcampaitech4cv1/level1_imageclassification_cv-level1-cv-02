@@ -16,7 +16,6 @@ from torch.optim.lr_scheduler import StepLR
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
-#from dataset import MaskBaseDataset
 from dataset2 import MaskBaseDataset, TestDataset
 from loss import create_criterion
 from sklearn.metrics import f1_score
@@ -33,7 +32,7 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau, CosineAnnealingLR
 import torch.nn as nn
 
 
-
+# StratifiedKFold, early stopping, oof, Gradient Accumulation
 
 
 
@@ -144,9 +143,6 @@ def getDataloader(dataset, train_idx, valid_idx, batch_size, num_workers):
     val_set   = torch.utils.data.Subset(dataset,
                                         indices=valid_idx)
     
-    # train_set.dataset.set_transform(get_transforms(need='train',mean=dataset.mean,std=dataset.std))
-    # val_set.dataset.set_transform(get_transforms(need='val',mean=dataset.mean,std=dataset.std))
-    
     # 추출된 Train Subset으로 DataLoader 생성
     train_loader = torch.utils.data.DataLoader(
         train_set,
@@ -171,7 +167,6 @@ def getDataloader(dataset, train_idx, valid_idx, batch_size, num_workers):
 def train(data_dir, model_dir, args):
     start_time = time.time()
     seed_everything(args.seed)                                                                                  # seed 고정
-    #early_stopping = EarlyStopping(patience=7, verbose=True, path=f'./model/{args.name}/checkpoint.pth')       # early stopping 
     
     # --test data set
     # /opt/ml/input/data/train
@@ -213,15 +208,6 @@ def train(data_dir, model_dir, args):
     )
     num_classes = dataset.num_classes  # 18
 
-    # -- augmentation
-    #transform_module = getattr(import_module("dataset"), args.augmentation)  # default: BaseAugmentation
-    # transform_module = getattr(import_module("dataset2"), args.augmentation)  # default: BaseAugmentation
-    # transform = transform_module(
-    #     resize=args.resize,
-    #     mean=dataset.mean,
-    #     std=dataset.std,
-    # )
-    
     transform = get_transforms(mean=dataset.mean, std=dataset.std)
     
     #dataset.set_transform(transform)
@@ -231,29 +217,6 @@ def train(data_dir, model_dir, args):
     train_set.dataset.set_transform(transform["train"])
     val_set.dataset.set_transform(transform["val"])
     
-    #train_set.dataset.set_transform(get_transforms(need='train',mean=dataset.mean,std=dataset.std))
-    #val_set.dataset.set_transform(get_transforms(need='val',mean=dataset.mean,std=dataset.std))
-    
-    
-    
-    # train_loader = DataLoader(
-    #     train_set,
-    #     batch_size=args.batch_size,
-    #     num_workers=multiprocessing.cpu_count() // 2,
-    #     shuffle=True,
-    #     pin_memory=use_cuda,
-    #     drop_last=True,
-    # )
-
-    # val_loader = DataLoader(
-    #     val_set,
-    #     batch_size=args.valid_batch_size,
-    #     num_workers=multiprocessing.cpu_count() // 2,
-    #     shuffle=False,
-    #     pin_memory=use_cuda,
-    #     drop_last=False,
-    # )
-
     # -- model
     model_module = getattr(import_module("model"), args.model)          # default: BaseModel
     model = model_module(
@@ -397,12 +360,6 @@ def train(data_dir, model_dir, args):
                 logger.add_figure("results", figure, epoch)
                 print()
 
-                # ----------------early stopping---------------- (overfitting 방지)
-                # early_stopping(val_loss, model)           
-                # if early_stopping.early_stop:
-                #     break
-                
-                
                 
                 
         all_predictions = []
