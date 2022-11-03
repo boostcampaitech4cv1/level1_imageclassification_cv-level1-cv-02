@@ -21,6 +21,7 @@ sys.path.append('../')  # import를 위해 경로추가
 from models import *
 from utils import CustomDataset
 from utils import Utility as U
+from utils import CustomTransform as UT
 
 def inference(model, test_loader, device):
     model.to(device)
@@ -59,6 +60,7 @@ if __name__ == '__main__':
     tar = torch.load(os.path.join(args.path_ref, args.path_tar, args.tar_name))
 
     eval_transform = A.Compose([
+                                UT.SolidCrop((50,50),(334,400)),
     A.Resize(tar['args'].img_size, tar['args'].img_size),
     A.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225),
                 max_pixel_value=255.0, always_apply=False, p=1.0),
