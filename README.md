@@ -1,7 +1,5 @@
 # 마스크 착용 상태 분류 대회
 
-[AI Stages](https://stages.ai) / [Naver Boost Camp AI Tech 4th](https://www.boostcourse.org)
-
 ## Competition Overview
 
 COVID-19의 확산으로 우리나라는 물론 전 세계 사람들은 경제적, 생산적인 활동에 많은 제약을 가지게 되었습니다. 우리나라는 COVID-19 확산 방지를 위해 사회적 거리 두기를 단계적으로 시행하는 등의 많은 노력을 하고 있습니다. 과거 높은 사망률을 가진 사스(SARS)나 에볼라(Ebola)와는 달리 COVID-19의 치사율은 오히려 비교적 낮은 편에 속합니다. 그럼에도 불구하고, 이렇게 오랜 기간 동안 우리를 괴롭히고 있는 근본적인 이유는 바로 COVID-19의 강력한 전염력 때문입니다.
@@ -10,6 +8,99 @@ COVID-19의 확산으로 우리나라는 물론 전 세계 사람들은 경제�
 
 따라서, 우리는 카메라로 비춰진 사람 얼굴 이미지 만으로 이 사람이 마스크를 쓰고 있는지, 쓰지 않았는지, 정확히 쓴 것이 맞는지 자동으로 가려낼 수 있는 시스템이 필요합니다. 이 시스템이 공공장소 입구에 갖춰져 있다면 적은 인적자원으로도 충분히 검사가 가능할 것입니다.
 
+### 문제 정의
+
+- 우리가 풀어야 할 문제는?
+    - Input이 주어졌을 때 성별, 나이, 마스크 착용 여부에 따른 클래스를 정의하여 반환해야 합니다.
+- Input / Output
+    - Input : 이미지, Output : 성별, 나이, 마스크 착용 여부에 따른 18개의 클래스
+- 우리가 문제를 푼 방식
+    - one vs all 전략(하나의 모델로 multi label classification)
+    - one vs one 전략(여러개의 모델로 multi class classification)
+
+### 프로젝트 팀 구성 및 역할
+  - 박시형 : 나이 분류
+  - 정혁기 : 마스크 분류
+  - 김형석 : 성별 분류
+  - 노순빈 : 전체 분류
+  - 장국빈 : 전체 분류
+  
+## EDA
+
+전체 이미지 수 : 4500    
+한 사람당 사진의 개수 : 7 (마스크 착용 5장, 이상하게 착용(코스크, 턱스크) 1장, 미착용 1장)  
+이미지 크기 : [384, 512]  
+
+### Class Discription
+<p align=center>
+<img width="500" src="https://user-images.githubusercontent.com/77565951/215813850-9b7172b0-e4a0-4e65-a0e4-27be6ac84bd8.png"/>
+</p>
+
+- Labeling
+    - Mask
+        - Wear : 마스크를 쓴 경우
+        - Incorrect : 마스크를 이상하게 쓴 경우 (코스크, 턱스크 등)
+        - Not Wear : 마스크를 쓰지 않은 경우
+    - Gender
+        - Male : 남자
+        - Female : 여자
+    - Age
+        - < 30 : 나이가 30세 미만
+        - ≥30 and < 60 : 나이가 30세 이상 60세 미만
+        - ≥60 : 나이가 60세 이상
+
+### 나이분포
+<img width="1034" alt="스크린샷 2022-11-02 오후 4 11 51" src="https://user-images.githubusercontent.com/77565951/215831085-b491a52d-421a-470d-9c2c-b774a6f0f534.png">
+나이 카테고리 3개로 나누어 시각화
+<img width="1034" alt="스크린샷 2022-11-02 오후 4 13 16" src="https://user-images.githubusercontent.com/77565951/215831058-4c5d9794-c3a5-490e-a7ce-10f5720fe285.png">
+
+### 이미지 RGB 분포
+<img width="1034" src="https://user-images.githubusercontent.com/77565951/215832620-38b4387e-c14c-40cc-ad5d-23365b654a4d.png"/>
+
+### 최종 class 분포
+<p align=center>
+<img width=600 src="https://user-images.githubusercontent.com/77565951/215833124-e1edbe28-c64b-41e2-965f-0f0d969a3400.png"/>
+</p>
+
+### class별 픽셀 평균 이미지
+<img src="https://user-images.githubusercontent.com/77565951/215833554-ea55713f-8369-475b-a085-e346127faa13.png"/>
+
+### 전체 이미지 픽셀 평균 이미지
+<p align=center>
+<img src="https://user-images.githubusercontent.com/77565951/215833632-d2a2997b-2460-4925-9ccc-b5ec72545396.png"/>
+</p>
+
+## Strategy
+- Data over-sampling : 클래스 이미지 개수가 적은 60대 이상 이미지를 복제하여 분포 맞춤
+- Mask 분류 모델
+  - Focal Loss
+  - pretrained_ResNext50
+  - F1-score : 0.98+
+  - Best model 찾는 기준을 classification_report를 이용, 여러 F1-score 기준으로 고름
+  
+ - 나이 분류 모델
+    - Data augmentation : 사진에서 보통 사람들이 중앙에 위치하기 때문에 center crop을 통해 얼굴에 집중할 수 있도록 함
+    - 나이를 3개의 카테고리로 나눠서 진행
+    - resnet101, resnext, regnet_x_16f, efficientnet_b3
+    - F1Loss, CrossEntropyLoss
+    - CutMix 적용했으나 성능 저하
+    - SGD, ADAM 사용해서 실험
+    - 앙상블 적용
+    - Griddropout 사용하여 머리카락 등 여러 일반화 성능이 낮아질 가능성을 낮추고자 함
+    - 나이 class의 범위를 바꿔보면서 비교(성능 차이 없음)
+ 
+ - 성별 분류 모델
+    - Pretrained ResNext(224x224)
+    - No Augmentation, BCE Loss, ADAM, lr 0.001, Epoch20
+    - accuracy : 98%
+ 
+ - 전체 분류 모델
+    - Pretrained ViT(384x384), SGD, Crop((50,50),(334,400))
+    - F1 Score : 0.7417
+    - Accuracy : 79.7460%
+
+### Hard Voting
+---
 ## Setup
 
 1. Run DataDownloader.ipynb
